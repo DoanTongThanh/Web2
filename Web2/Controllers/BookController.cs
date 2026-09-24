@@ -203,14 +203,5 @@ namespace Web2.Controllers
 
             return Ok(bookDomain);
         }
-
-
-
-
-
-        public string Post { get; set; } = string.Empty;
-        public string Get { get; set; } = string.Empty;
-        public string update { get; set; } = string.Empty;
-        public string delete { get; set; } = string.Empty;
     }
 }

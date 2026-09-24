@@ -11,6 +11,10 @@ namespace Web2.Data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Book_Author>()
+        .Property(b => b.Id)
+        .ValueGeneratedOnAdd();
             modelBuilder.Entity<Book_Author>()
                 .HasKey(ba => new { ba.BookId, ba.AuthorId });
             modelBuilder.Entity<Book_Author>()
@@ -21,6 +25,7 @@ namespace Web2.Data
                 .HasOne(ba => ba.Author)
                 .WithMany(a => a.Book_Authors)
                 .HasForeignKey(ba => ba.AuthorId);
+
         }
         public DbSet<Books> Books { get; set; }
         public DbSet<Authors> Authors { get; set; }

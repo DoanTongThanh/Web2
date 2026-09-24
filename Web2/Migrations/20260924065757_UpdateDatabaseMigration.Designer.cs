@@ -12,8 +12,8 @@ using Web2.Data;
 namespace Web2.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260923074416_InitialDatabaseMigration")]
-    partial class InitialDatabaseMigration
+    [Migration("20260924065757_UpdateDatabaseMigration")]
+    partial class UpdateDatabaseMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
