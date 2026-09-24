@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddScoped<IBookRepository, SQLBookRepository>();
+builder.Services.AddScoped<IAuthorRepository, SQLAuthorRepository>();
+builder.Services.AddScoped<IPublisherRepository, SQLPublisherRepository>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddControllers();

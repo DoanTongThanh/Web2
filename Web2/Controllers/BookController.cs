@@ -6,10 +6,6 @@ using Web2.Data;
 using Web2.Models.Domain;
 using Web2.Models.DTO;
 using Web2.Repositories;
-using Web2.Data;
-using Web2.Models.Domain;
-using Web2.Models.DTO;
-using Web2.Repositories;
 namespace Web2.Controllers
 {
     [Route("api/[controller]")]
@@ -53,7 +49,11 @@ namespace Web2.Controllers
         public IActionResult DeleteBookById(int id)
         {
             var deleteBook = _bookRepository.DeleteBook(id);
-            return Ok(deleteBook);
+            if (deleteBook == null)
+            {
+                return NotFound(new { message = "Không tìm thấy sách cần xóa" });
+            }
+            return Ok(new { message = "Đã xóa sách thành công!", deletedId = id });
         }
     }
 }
