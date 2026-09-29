@@ -21,11 +21,18 @@ namespace Web2.Controllers
             _publisherRepository = publisherRepository;
         }
 
-        [HttpGet("get-all-publisher")]
-        public IActionResult GetAllPublisher()
+        [HttpGet]
+        [Route("get-all-publishers")]
+        public IActionResult GetAllPublishers(
+    [FromQuery] string? filterOn,
+    [FromQuery] string? filterQuery,
+    [FromQuery] string? sortBy,
+    [FromQuery] bool? isAscending,
+    [FromQuery] int pageNumber = 1,
+    [FromQuery] int pageSize = 1000)
         {
-            var allPublishers = _publisherRepository.GetAllPublishers();
-            return Ok(allPublishers);
+            var publishers = _publisherRepository.GetAllPublishers(filterOn, filterQuery, sortBy, isAscending ?? true, pageNumber, pageSize);
+            return Ok(publishers);
         }
 
         [HttpGet("get-publisher-by-id/{id}")]

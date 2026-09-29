@@ -13,33 +13,48 @@ namespace Web2.Repositories
             _dbContext = dbContext;
         }
 
-        public List<AuthorDTO> GellAllAuthors()
+        public List<AuthorDTO> GetAllAuthors(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
         {
-            //Get Data From Database -Domain Model
-            var allAuthorsDomain = _dbContext.Authors.ToList();
-            //Map domain models to DTOs
-            var allAuthorDTO = new List<AuthorDTO>();
-            foreach (var authorDomain in allAuthorsDomain)
-            {
-                allAuthorDTO.Add(new AuthorDTO()
+            var allAuthors = _dbContext.Authors
+                .Select(author => new AuthorDTO()
                 {
-                    Id = authorDomain.Id,
-                    FullName = authorDomain.FullName
-                });
+                    Id = author.Id,
+                    FullName = author.FullName
+                }).AsQueryable();
+
+            
+            if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+            {
+                if (filterOn.Equals("fullName", StringComparison.OrdinalIgnoreCase))
+                {
+                    allAuthors = allAuthors.Where(x => x.FullName != null && x.FullName.ToLower().Contains(filterQuery.ToLower()));
+                }
             }
-            //return DTOs
-            return allAuthorDTO;
+
+            
+            if (string.IsNullOrWhiteSpace(sortBy) == false)
+            {
+                if (sortBy.Equals("fullName", StringComparison.OrdinalIgnoreCase))
+                {
+                    allAuthors = isAscending ? allAuthors.OrderBy(x => x.FullName) : allAuthors.OrderByDescending(x => x.FullName);
+                }
+            }
+
+            
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            return allAuthors.Skip(skipResults).Take(pageSize).ToList();
         }
 
         public AuthorNoIdDTO GetAuthorById(int id)
         {
-            // get book Domain model from Db
+            
             var authorWithIdDomain = _dbContext.Authors.FirstOrDefault(x => x.Id == id);
             if (authorWithIdDomain == null)
             {
                 return null!;
             }
-            //Map Domain Model to DTOs
+            
             var authorNoIdDTO = new AuthorNoIdDTO
             {
                 FullName = authorWithIdDomain.FullName,
@@ -53,7 +68,7 @@ namespace Web2.Repositories
             {
                 FullName = addAuthorRequestDTO.FullName,
             };
-            //Use Domain Model to create Author
+            
             _dbContext.Authors.Add(authorDomainModel);
             _dbContext.SaveChanges();
             return addAuthorRequestDTO;

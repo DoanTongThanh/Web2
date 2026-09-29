@@ -14,9 +14,9 @@ namespace Web2.Repositories
             _dbContext = dbContext;
         }
 
-        public List<BookDTO> GetAllBooks()
+        public List<BookDTO> GetAllBooks(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
         {
-            return _dbContext.Books
+            var allBooks = _dbContext.Books
                 .Select(book => new BookDTO()
                 {
                     Id = book.Id,
@@ -32,7 +32,30 @@ namespace Web2.Repositories
                     AuthorNames = book.Book_Authors != null
                         ? book.Book_Authors.Where(n => n.Author != null).Select(n => n.Author.FullName).ToList()
                         : new List<string>()
-                }).ToList();
+                }).AsQueryable();
+
+
+            if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+            {
+                if (filterOn.Equals("title", StringComparison.OrdinalIgnoreCase))
+                {
+                    allBooks = allBooks.Where(x => x.Title != null && x.Title.ToLower().Contains(filterQuery.ToLower()));
+                }
+                if (filterOn.Equals("description", StringComparison.OrdinalIgnoreCase))
+                {
+                    allBooks = allBooks.Where(x => x.Description != null && x.Description.ToLower().Contains(filterQuery.ToLower()));
+                }
+
+                if (filterOn.Equals("rate", StringComparison.OrdinalIgnoreCase) && int.TryParse(filterQuery, out var rateValue))
+                {
+                    allBooks = allBooks.Where(x => x.Rate == rateValue);
+                }
+            }
+
+
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            return allBooks.Skip(skipResults).Take(pageSize).ToList();
         }
 
         public BookDTO GetBookById(int id)
@@ -77,7 +100,7 @@ namespace Web2.Repositories
             _dbContext.Books.Add(bookDomainModel);
             _dbContext.SaveChanges();
 
-            // Kiểm tra tránh lỗi NullReferenceException nếu AuthorIds bị null
+            
             if (addBookRequestDTO.AuthorIds != null)
             {
                 foreach (var authorId in addBookRequestDTO.AuthorIds)

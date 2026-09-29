@@ -13,19 +13,37 @@ namespace Web2.Repositories
             _dbContext = dbContext;
         }
 
-        public List<PublisherDTO> GetAllPublishers()
+        public List<PublisherDTO> GetAllPublishers(string? filterOn = null, string? filterQuery = null, string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
         {
-            var publishersDomain = _dbContext.Publishers.ToList();
-            var publisherDTOs = new List<PublisherDTO>();
-            foreach (var pub in publishersDomain)
-            {
-                publisherDTOs.Add(new PublisherDTO()
+            var allPublishers = _dbContext.Publishers
+                .Select(publisher => new PublisherDTO()
                 {
-                    Id = pub.Id,
-                    Name = pub.Name
-                });
+                    Id = publisher.Id,
+                    Name = publisher.Name
+                }).AsQueryable();
+
+            // Filtering
+            if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+            {
+                if (filterOn.Equals("name", StringComparison.OrdinalIgnoreCase))
+                {
+                    allPublishers = allPublishers.Where(x => x.Name != null && x.Name.ToLower().Contains(filterQuery.ToLower()));
+                }
             }
-            return publisherDTOs;
+
+            // Sorting
+            if (string.IsNullOrWhiteSpace(sortBy) == false)
+            {
+                if (sortBy.Equals("name", StringComparison.OrdinalIgnoreCase))
+                {
+                    allPublishers = isAscending ? allPublishers.OrderBy(x => x.Name) : allPublishers.OrderByDescending(x => x.Name);
+                }
+            }
+
+            // Pagination
+            var skipResults = (pageNumber - 1) * pageSize;
+
+            return allPublishers.Skip(skipResults).Take(pageSize).ToList();
         }
 
         public PublisherNoIdDTO GetPublisherById(int id)
