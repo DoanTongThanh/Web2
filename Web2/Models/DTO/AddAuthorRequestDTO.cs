@@ -1,7 +1,11 @@
-﻿namespace Web2.Models.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Web2.Models.DTO
 {
     public class AddAuthorRequestDTO
     {
-        public string FullName { set; get; } = string.Empty;
+        [Required(ErrorMessage = "Tên tác giả là bắt buộc")]
+        [MinLength(3, ErrorMessage = "Tên tác giả phải có ít nhất 3 ký tự")]
+        public string FullName { get; set; } = string.Empty;
     }
 }

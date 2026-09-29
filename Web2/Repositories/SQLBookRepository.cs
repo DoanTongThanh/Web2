@@ -77,16 +77,20 @@ namespace Web2.Repositories
             _dbContext.Books.Add(bookDomainModel);
             _dbContext.SaveChanges();
 
-            foreach (var authorId in addBookRequestDTO.AuthorIds)
+            // Kiểm tra tránh lỗi NullReferenceException nếu AuthorIds bị null
+            if (addBookRequestDTO.AuthorIds != null)
             {
-                var bookAuthorModel = new Book_Author()
+                foreach (var authorId in addBookRequestDTO.AuthorIds)
                 {
-                    BookId = bookDomainModel.Id,
-                    AuthorId = authorId
-                };
-                _dbContext.Book_Authors.Add(bookAuthorModel);
+                    var bookAuthorModel = new Book_Author()
+                    {
+                        BookId = bookDomainModel.Id,
+                        AuthorId = authorId
+                    };
+                    _dbContext.Book_Authors.Add(bookAuthorModel);
+                }
+                _dbContext.SaveChanges();
             }
-            _dbContext.SaveChanges();
 
             return addBookRequestDTO;
         }
@@ -116,17 +120,20 @@ namespace Web2.Repositories
                 _dbContext.SaveChanges();
             }
 
-            foreach (var authorId in bookDTO.AuthorIds)
+            if (bookDTO.AuthorIds != null)
             {
-                var bookAuthorModel = new Book_Author()
+                foreach (var authorId in bookDTO.AuthorIds)
                 {
-                    BookId = id,
-                    AuthorId = authorId
-                };
-                _dbContext.Book_Authors.Add(bookAuthorModel);
-            }
+                    var bookAuthorModel = new Book_Author()
+                    {
+                        BookId = id,
+                        AuthorId = authorId
+                    };
+                    _dbContext.Book_Authors.Add(bookAuthorModel);
+                }
 
-            _dbContext.SaveChanges();
+                _dbContext.SaveChanges();
+            }
             return bookDTO;
         }
 

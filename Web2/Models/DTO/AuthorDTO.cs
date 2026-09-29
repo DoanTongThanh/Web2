@@ -1,4 +1,5 @@
-﻿using Web2.Models.Domain;
+﻿using System.ComponentModel.DataAnnotations;
+using Web2.Models.Domain;
 namespace Web2.Models.DTO
 {
     public class AuthorDTO

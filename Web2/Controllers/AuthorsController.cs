@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Web2.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
+using Web2.CustomActionFilter;
 using Web2.Data;
 using Web2.Models.Domain;
+using Web2.Models.DTO;
 using Web2.Repositories;
 
 namespace Web2.Controllers
@@ -13,37 +14,49 @@ namespace Web2.Controllers
     {
         private readonly AppDbContext _dbContext;
         private readonly IAuthorRepository _authorRepository;
-        public AuthorsController(AppDbContext dbContext, IAuthorRepository
-       authorRepository)
+
+        public AuthorsController(AppDbContext dbContext, IAuthorRepository authorRepository)
         {
             _dbContext = dbContext;
             _authorRepository = authorRepository;
         }
+
         [HttpGet("get-all-author")]
         public IActionResult GetAllAuthor()
         {
             var allAuthors = _authorRepository.GellAllAuthors();
             return Ok(allAuthors);
         }
+
         [HttpGet("get-author-by-id/{id}")]
         public IActionResult GetAuthorById(int id)
         {
             var authorWithId = _authorRepository.GetAuthorById(id);
             return Ok(authorWithId);
         }
+
         [HttpPost("add-author")]
-        public IActionResult AddAuthors([FromBody] AddAuthorRequestDTO
-       addAuthorRequestDTO)
+        [ValidateModel]
+        public IActionResult AddAuthors([FromBody] AddAuthorRequestDTO addAuthorRequestDTO)
         {
+            
+
             var authorAdd = _authorRepository.AddAuthor(addAuthorRequestDTO);
-            return Ok();
+            return Ok(authorAdd);
         }
+
         [HttpPut("update-author-by-id/{id}")]
         public IActionResult UpdateBookById(int id, [FromBody] AuthorNoIdDTO authorNoIdDTO)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var authorUpdate = _authorRepository.UpdateAuthorById(id, authorNoIdDTO);
             return Ok(authorUpdate);
         }
+
         [HttpDelete("delete-author-by-id/{id}")]
         public IActionResult DeleteBookById(int id)
         {
@@ -51,6 +64,4 @@ namespace Web2.Controllers
             return Ok();
         }
     }
-
 }
-

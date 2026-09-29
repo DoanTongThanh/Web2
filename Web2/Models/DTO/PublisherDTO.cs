@@ -1,4 +1,5 @@
-﻿namespace Web2.Models.DTO
+﻿using System.ComponentModel.DataAnnotations;
+namespace Web2.Models.DTO
 {
     public class PublisherDTO
     {
