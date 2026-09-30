@@ -22,7 +22,7 @@ namespace Web2.Repositories
                     Name = publisher.Name
                 }).AsQueryable();
 
-            // Filtering
+            
             if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
             {
                 if (filterOn.Equals("name", StringComparison.OrdinalIgnoreCase))
@@ -31,7 +31,7 @@ namespace Web2.Repositories
                 }
             }
 
-            // Sorting
+            
             if (string.IsNullOrWhiteSpace(sortBy) == false)
             {
                 if (sortBy.Equals("name", StringComparison.OrdinalIgnoreCase))
@@ -40,7 +40,7 @@ namespace Web2.Repositories
                 }
             }
 
-            // Pagination
+            
             var skipResults = (pageNumber - 1) * pageSize;
 
             return allPublishers.Skip(skipResults).Take(pageSize).ToList();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -16,23 +17,33 @@ namespace Web2.Controllers
     {
         private readonly AppDbContext _dbContext;
         private readonly IBookRepository _bookRepository;
+        private readonly ILogger<BooksController> _logger;
 
-        public BooksController(AppDbContext dbContext, IBookRepository bookRepository)
+        public BooksController(AppDbContext dbContext, IBookRepository bookRepository, ILogger<BooksController> logger)
         {
             _dbContext = dbContext;
             _bookRepository = bookRepository;
+            _logger = logger;
         }
 
         [HttpGet("get-all-books")]
+        [Authorize(Roles = "Read")]
         public IActionResult GetAll(
-    [FromQuery] string? filterOn,
-    [FromQuery] string? filterQuery,
-    [FromQuery] string? sortBy,
-    [FromQuery] bool isAscending = true,
-    [FromQuery] int pageNumber = 1,
-    [FromQuery] int pageSize = 100)
+            [FromQuery] string? filterOn,
+            [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy,
+            [FromQuery] bool isAscending = true,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 100)
         {
+            _logger.LogInformation("GetAll Book Action method was invoked");
+            _logger.LogWarning("This is a warning log");
+            _logger.LogError("This is a error log");
+
             var allBooks = _bookRepository.GetAllBooks(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
+
+            _logger.LogInformation($"Finished GetAllBook request with data {System.Text.Json.JsonSerializer.Serialize(allBooks)}");
+
             return Ok(allBooks);
         }
 
@@ -97,13 +108,11 @@ namespace Web2.Controllers
                 return false;
             }
 
-            
             if (string.IsNullOrEmpty(addBookRequestDTO.Description))
             {
                 ModelState.AddModelError(nameof(addBookRequestDTO.Description), $"{nameof(addBookRequestDTO.Description)} cannot be null");
             }
 
-            
             if (addBookRequestDTO.Rate < 0 || addBookRequestDTO.Rate > 5)
             {
                 ModelState.AddModelError(nameof(addBookRequestDTO.Rate), $"{nameof(addBookRequestDTO.Rate)} cannot be less than 0 and more than 5");
